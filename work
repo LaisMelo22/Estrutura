@@ -1,0 +1,358 @@
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <stdlib.h>
+#define CAPACIDADE_STRING 180
+
+//Funções da lista duplamente encadeada
+typedef struct no{
+    char *data;
+    int index;
+    int size;
+    struct no *prox;
+    struct no *previous;
+}no;
+
+typedef struct nw{
+    char origem;
+    int ponto;
+}nw;
+
+no* create_linked_list()
+{
+return NULL;
+}
+void imprime(no* node)
+{
+    while(node)
+    {
+        printf("c:%s\ni:%d\ns:%d\n", node->data,node->index,node->size);
+        node = node->prox;
+    }
+}
+
+no* inserir(no **Head, char *value, int index)
+{
+    no *aux, *novo = (no *)malloc(sizeof(no));
+    
+    novo->data = malloc(strlen(value)+1);
+    strcpy(novo->data,value);
+    novo->size = strlen(value);
+    novo->prox = NULL;
+    novo->index = index;
+
+    if (*Head == NULL) {
+        *Head = novo;
+        novo->previous = NULL;
+    }
+    else
+    {
+        aux = *Head;
+        while(aux->prox != NULL)
+        {
+            aux = aux->prox;
+        }
+        aux->prox = novo;
+        novo->previous = aux;
+    }  
+}
+//alinha
+void alinha(char str1[], char str2[])//str1 na horizontal sempre
+{
+    int tam = strlen(str2) + 1;
+    nw **matriz;
+    matriz = malloc(CAPACIDADE_STRING * sizeof(nw*));//aloca linhas
+    for(int i = 0; i < CAPACIDADE_STRING; i++)//aloca colunas
+        matriz[i] = malloc(CAPACIDADE_STRING * sizeof(nw)); 
+
+    for (int i = 0; i < tam; i++)
+    {
+        for (int j = 0; j < tam; j++)  matriz->ponto[i][j] = 0;//percorre matriz
+    }
+    
+    //tem q colocar 0 na matriz >>>ok
+    
+    for (int i = 1; i < tam; i++)
+    {
+        for (int j = 1; i < tam; j++)
+        {
+            if (str1[j-1] == str2[i-1] && str1[j-1] != '-')
+            {
+                matriz->origem[(i * CAPACIDADE_STRING) + j] = 'd';
+                matriz->ponto[(i * CAPACIDADE_STRING) + j] = (matriz->ponto[((i-1) * CAPACIDADE_STRING) + (j-1)])+1; 
+            }
+            if (str1[j-1] == str2[i-1] && str1[j-1] == '-')
+            {
+                matriz->origem[(i * CAPACIDADE_STRING) + j] = 'd';
+                matriz->ponto[(i * CAPACIDADE_STRING) + j] = matriz->ponto[((i-1) * CAPACIDADE_STRING) + (j-1)];
+            }
+            if (str1[j-1] != str2[i-1])
+            {
+                if (str1[j-1] == '-' || str2[i-1] == '-')
+                {
+                    if(matriz->ponto[(i * CAPACIDADE_STRING) + j] >= matriz->ponto[(i * CAPACIDADE_STRING) + (j-1)]) 
+                    {
+                        matriz->origem[(i * CAPACIDADE_STRING) + j] = 'c';
+                        matriz->ponto[(i * CAPACIDADE_STRING) + j] = (matriz->ponto[((i-1) * CAPACIDADE_STRING) + j])-1;    
+                    }
+                    else 
+                    {   
+                        matriz->origem[(i * CAPACIDADE_STRING) + j] = 'e';
+                        matriz->ponto[(i * CAPACIDADE_STRING) + j] = (matriz->ponto[(i * CAPACIDADE_STRING) + (j-1)])-1;
+                    }
+                }
+                if (str1[j-1] != '-' && str2[i-1] != '-')
+                {
+                    if(matriz->ponto[((i-1) * CAPACIDADE_STRING) + j] >= matriz->ponto[(i * CAPACIDADE_STRING) + (j-1)]) 
+                    {
+                        matriz->origem[(i * CAPACIDADE_STRING) + j] = 'c';
+                        matriz->ponto[(i * CAPACIDADE_STRING) + j] = matriz->ponto[((i-1) * CAPACIDADE_STRING) + j];    
+                    }
+                        else 
+                    {   
+                        matriz->origem[(i * CAPACIDADE_STRING) + j] = 'e';
+                        matriz->ponto[(i * CAPACIDADE_STRING) + j] = matriz->ponto[(i * CAPACIDADE_STRING) + (j-1)];
+                    }
+                }
+            }
+        } 
+    }
+    char direcao = matriz->origem[tam-1][tam-1];
+    char aux1[CAPACIDADE_STRING], aux2[CAPACIDADE_STRING];
+    int i = tam-1;
+    int j = tam-1;
+    int index = 1;
+    int jndex = 1;
+    while(matriz->ponto != 0)
+    {
+        if(direcao == 'c')
+        {
+            aux2[CAPACIDADE_STRING - index] = str2[i-1];
+            aux1[CAPACIDADE_STRING - jndex] = '-';
+            i -= 1;
+            index += 1;
+            jndex += 1;
+        }
+        if(direcao == 'e')
+        {
+            aux2[CAPACIDADE_STRING - index] = '-';
+            aux1[CAPACIDADE_STRING - jndex] = str1[j-1];
+            j -= 1;
+            index += 1;
+            jndex += 1;
+        }
+        if(direcao == 'd')
+        {
+            aux2[CAPACIDADE_STRING - index] = str2[i-1];
+            aux1[CAPACIDADE_STRING - jndex] = str1[j-1];
+            i -= 1;
+            j -= 1;
+            index += 1;
+            jndex += 1;
+        }
+    }
+    printf(">>>>>>>>>>>>> %s\n", aux1);
+    printf(">>>>>>>>>>>>> %s\n", aux2);
+}    
+//recebe a ancora e compara cada sequencia com ela                              
+/*no* ancoraverso(int index_ancora)
+{
+    while(no->index != index_ancora)
+    { 
+        if(no->previous != NULL) no = no->previous;
+        else break;
+    }
+    while(no->index != index_ancora)
+    {
+        if(no->prox != NULL) no = no->prox;
+        else break;
+    }
+    //acha o no com a ancora usando o index
+    while(no->previous != NULL)
+    //compara a ancora com todas as anteriores
+}                                                                               */
+//Melhor alinhamento dos pares(organiza as comparacoes)
+no* pares(no* no)
+{
+    char aux1[CAPACIDADE_STRING], aux2[CAPACIDADE_STRING];
+    int contador = 0;
+    /*no* aux;
+    aux = (no*)malloc(sizeof(no));*/
+    while(no->prox != NULL)
+    {
+        strcpy(aux1, no->data);
+        while(no->prox != NULL)
+        {
+            no = no->prox;
+            contador++;
+            strcpy(aux2,no->data);
+            alinha(aux1, aux2);
+            strcpy(no->data,aux2);
+        //no = no->prox;
+        }
+        for(int i = 0;i <= contador;i++) no = no->previous;
+        strcpy(no->data, aux1);
+        no = no->prox;
+    }
+}
+
+//Calcular Score
+int score(no* seq1, no* seq2)
+{
+    char aux1[CAPACIDADE_STRING],aux2[CAPACIDADE_STRING];
+    int cont = 0,i;
+
+    strcpy(aux1,seq1->data);
+    strcpy(aux2,seq2->data);
+
+    for(i = 0; i < seq1 ->size;i++)
+    {
+        if(aux1[i] == aux2[i]){cont += 1;}
+        else
+        {
+            if(aux1[i] == '-' || aux2[i] == '-'){cont -= 1;}
+            else {cont -= 0;}
+        }
+    }
+    return cont;
+}
+
+//Matriz de similaridades
+int matrix(int qntdd, no* seq)
+{
+    //Gerar matriz representando seq a serem alinhadas e calcular scores dos alinhamentos e Somar eles através das linhas da matriz
+    int sim[qntdd][qntdd+1], i;
+    int maior_tam = 0;
+    //identificar maior tam e completar as outras seq
+    while(seq != NULL)
+    {
+        if(seq->prox == NULL)
+        {
+            if(seq->size > maior_tam) maior_tam = seq->size;
+            break;
+        }
+        else if(seq->size > maior_tam) maior_tam = seq->size;
+        seq = seq->prox;
+    }
+
+    //completar as seq
+    while(seq != NULL)
+    {
+        if(seq->previous == NULL)
+        {
+            if(seq->size < maior_tam)
+            {
+            int aux = maior_tam - seq->size;
+            int j;
+                for(j=0;j<aux;j++)
+                {
+                    for(i=0;i<seq->size;i++)
+                    {
+                        seq->data[(seq->size + j)] = '-';
+                    }
+                    seq->size += 1;
+                }
+            }
+            break;
+        }
+        else if(seq->size < maior_tam)
+        {
+            int aux = maior_tam - seq->size;
+            int j;
+            for(j=0;j<aux;j++)
+            {
+                for(i=0;i<seq->size;i++)
+                {
+                    seq->data[(seq->size + j)] = '-';
+                }
+                seq->size += 1;
+            }
+        }
+        seq = seq ->previous;
+    }
+
+    //Scores de alinhamento salvos na matriz
+    no *seq1 ,*seq2 = (no*)malloc(sizeof(no));
+    seq1 = seq;
+    seq2 = seq; 
+    int j = 0;
+    i = 0;
+    while(seq1 != NULL)
+    {
+        while(seq2 != NULL)
+        {
+            if(i == j) sim[i][j] = 0;
+            else sim[i][j] = score(seq1,seq2);
+            //printf("%d ",sim[i][j]);
+            seq2 = seq2->prox;
+            j++;
+        }
+       //printf("\n");
+        seq1 = seq1->prox;
+        seq2 = seq;
+        i++;
+        j = 0;
+    }
+   
+    //calculo ancora
+    i=0, j=0;
+    for(i=0;i<qntdd;i++)
+    {
+        for(j = 0; j < qntdd; j++)
+        {
+           sim[i][qntdd] = 0; 
+        }
+    }
+
+    for(i=0;i<qntdd;i++)
+    {
+        for(j = 0; j < qntdd; j++)
+        {
+           sim[i][qntdd] += sim[i][j]; 
+        }
+    }
+    //Retornar index ancora
+    int ancora = sim[0][qntdd],index = 1;
+    i=0;
+    for(i=0;i<qntdd;i++)
+    {
+        if(sim[i][qntdd] >= ancora)
+        {
+            ancora = sim[i][qntdd];
+            index = i + 1;
+        }       
+    }
+    return index;
+}
+
+//Alinhamento estrela alinha
+int alignment(int qntdd, no* seq)
+{
+    //Achar a ancora
+    int ancora;
+    ancora = matrix(qntdd,seq);
+    //Calcular alinhamento otimo entre a ancora e as outras sequencias(e salvar)
+    no* pares = create_linked_list();
+    //Juntar alinhamentos
+}
+
+
+int main(){
+
+    int tam, i;
+    char seq[CAPACIDADE_STRING];
+    no* sequencia = create_linked_list();
+
+    // Recebe as sequencias e armazena em uma lista duplamente encadeada
+    printf("Digite quantas sequências serão alinhadas: \n");
+    scanf("%d",&tam);
+
+    for(i=1;i<=tam;i++)
+    {
+        printf("Digite a sequência %d: ",i);
+        scanf("%s",seq);
+        inserir(&sequencia,seq,i);
+    }
+    matrix(tam, sequencia);
+    imprime(sequencia);
+}
